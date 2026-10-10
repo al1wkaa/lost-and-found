@@ -2,7 +2,29 @@
 
 {% block content %}
 <h1>Потерянные и найденные вещи</h1>
-<p class="text-muted">Здесь будет лента объявлений.</p>
-<a href="#" class="btn btn-danger">Я потерял</a>
-<a href="#" class="btn btn-success">Я нашёл</a>
+<div class="mb-4">
+  <a href="{{ url_for('add') }}" class="btn btn-danger">Я потерял</a>
+  <a href="{{ url_for('add') }}" class="btn btn-success">Я нашёл</a>
+</div>
+
+{% if items %}
+  <div class="row">
+  {% for item in items %}
+    <div class="col-md-4 mb-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <span class="badge {{ 'bg-danger' if item.type == 'lost' else 'bg-success' }}">
+            {{ 'Потерял' if item.type == 'lost' else 'Нашёл' }}
+          </span>
+          <h5 class="card-title mt-2">{{ item.title }}</h5>
+          <p class="card-text text-muted">{{ item.category }} · {{ item.place }} · {{ item.date }}</p>
+          <p class="card-text">{{ item.description }}</p>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+{% else %}
+  <p class="text-muted">Пока нет объявлений.</p>
+{% endif %}
 {% endblock %}
