@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Новое объявление</h1>
+<form method="post" class="mt-3" style="max-width: 600px;">
+  <div class="mb-3">
+    <label class="form-label">Тип</label>
+    <select name="type" class="form-select" required>
+      <option value="lost">Я потерял</option>
+      <option value="found">Я нашёл</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Категория</label>
+    <select name="category_id" class="form-select" required>
+      {% for c in categories %}
+        <option value="{{ c.id }}">{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Название</label>
+    <input type="text" name="title" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Описание</label>
+    <textarea name="description" class="form-control" rows="3"></textarea>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Место</label>
+    <select name="place_id" class="form-select" required>
+      {% for p in places %}
+        <option value="{{ p.id }}">{{ p.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Дата</label>
+    <input type="date" name="date" class="form-control" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Опубликовать</button>
+  <a href="/" class="btn btn-link">Отмена</a>
+</form>
+{% endblock %}
