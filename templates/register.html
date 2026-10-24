@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+<h1>Регистрация</h1>
+<form method="post" class="mt-3" style="max-width: 420px;">
+  <div class="mb-3">
+    <label class="form-label">Имя</label>
+    <input type="text" name="name" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Email</label>
+    <input type="email" name="email" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Пароль (не короче 6 символов)</label>
+    <input type="password" name="password" class="form-control" minlength="6" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Контакт для связи (например, Telegram)</label>
+    <input type="text" name="contact" class="form-control">
+  </div>
+  <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+  <a href="{{ url_for('login') }}" class="btn btn-link">Уже есть аккаунт</a>
+</form>
+{% endblock %}

@@ -1,8 +1,43 @@
-from flask import Flask, render_template, request, redirect, url_for
+import os
+import sqlite3
+
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_login import (LoginManager, UserMixin, login_user, logout_user,
+                         login_required, current_user)
+from werkzeug.security import generate_password_hash, check_password_hash
+
 from db import get_db, init_db
 
 app = Flask(__name__)
+# Секретный ключ подписывает сессии. На хостинге задайте свой через переменную окружения SECRET_KEY.
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-only-change-me")
 init_db()
+
+login_manager = LoginManager(app)
+login_manager.login_view = "login"
+login_manager.login_message = "Войдите, чтобы открыть эту страницу."
+login_manager.login_message_category = "warning"
+
+
+class User(UserMixin):
+    def __init__(self, row):
+        self.id = row["id"]
+        self.name = row["name"]
+        self.email = row["email"]
+        self.contact = row["contact"]
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    conn = get_db()
+    row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    conn.close()
+    return User(row) if row else None
+
+
+def is_safe_next(target):
+    """Разрешаем перенаправление только на страницы нашего же сайта."""
+    return bool(target) and target.startswith("/") and not target.startswith("//")
 
 
 @app.route("/")
@@ -19,7 +54,80 @@ def home():
     return render_template("index.html", items=items)
 
 
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for("home"))
+
+    if request.method == "POST":
+        name = request.form["name"].strip()
+        email = request.form["email"].strip().lower()
+        password = request.form["password"]
+        contact = request.form["contact"].strip()
+
+        error = None
+        if not name:
+            error = "Введите имя."
+        elif "@" not in email or "." not in email:
+            error = "Введите корректный email."
+        elif len(password) < 6:
+            error = "Пароль должен быть не короче 6 символов."
+
+        if error is None:
+            conn = get_db()
+            try:
+                conn.execute(
+                    "INSERT INTO users (name, email, password_hash, contact) VALUES (?, ?, ?, ?)",
+                    (name, email, generate_password_hash(password), contact or None),
+                )
+                conn.commit()
+            except sqlite3.IntegrityError:
+                error = "Пользователь с таким email уже существует."
+            finally:
+                conn.close()
+
+        if error is None:
+            flash("Регистрация прошла успешно. Теперь войдите.", "success")
+            return redirect(url_for("login"))
+        flash(error, "danger")
+
+    return render_template("register.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for("home"))
+
+    if request.method == "POST":
+        email = request.form["email"].strip().lower()
+        password = request.form["password"]
+
+        conn = get_db()
+        row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+        conn.close()
+
+        if row and check_password_hash(row["password_hash"], password):
+            login_user(User(row))
+            next_page = request.args.get("next")
+            return redirect(next_page if is_safe_next(next_page) else url_for("home"))
+
+        # одно и то же сообщение для неверного email и неверного пароля
+        flash("Неверный email или пароль.", "danger")
+
+    return render_template("login.html")
+
+
+@app.route("/logout", methods=["POST"])
+@login_required
+def logout():
+    logout_user()
+    flash("Вы вышли из аккаунта.", "success")
+    return redirect(url_for("home"))
+
+
 @app.route("/add", methods=["GET", "POST"])
+@login_required
 def add():
     conn = get_db()
     if request.method == "POST":
@@ -27,7 +135,7 @@ def add():
             "INSERT INTO items (user_id, category_id, place_id, type, title, description, date) "
             "VALUES (?, ?, ?, ?, ?, ?, ?)",
             (
-                1,  # временно, пока нет регистрации
+                current_user.id,  # реальный автор объявления
                 request.form["category_id"],
                 request.form["place_id"],
                 request.form["type"],
@@ -38,6 +146,7 @@ def add():
         )
         conn.commit()
         conn.close()
+        flash("Объявление опубликовано.", "success")
         return redirect(url_for("home"))
 
     categories = conn.execute("SELECT * FROM categories ORDER BY name").fetchall()
