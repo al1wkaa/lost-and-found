@@ -1,7 +1,7 @@
 import os
 import sqlite3
 
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from flask_login import (LoginManager, UserMixin, login_user, logout_user,
                          login_required, current_user)
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -48,6 +48,7 @@ def home():
         "FROM items "
         "JOIN categories ON categories.id = items.category_id "
         "JOIN places ON places.id = items.place_id "
+        "WHERE items.status = 'active' "
         "ORDER BY items.id DESC"
     ).fetchall()
     conn.close()
@@ -153,6 +154,61 @@ def add():
     places = conn.execute("SELECT * FROM places ORDER BY name").fetchall()
     conn.close()
     return render_template("add.html", categories=categories, places=places)
+
+@app.route("/item/<int:item_id>")
+def item_detail(item_id):
+    conn = get_db()
+    item = conn.execute(
+        "SELECT items.*, categories.name AS category_name, places.name AS place_name, "
+        "users.name AS author_name, users.contact AS author_contact "
+        "FROM items "
+        "JOIN categories ON categories.id = items.category_id "
+        "JOIN places ON places.id = items.place_id "
+        "JOIN users ON users.id = items.user_id "
+        "WHERE items.id = ?",
+        (item_id,),
+    ).fetchone()
+    conn.close()
+    if item is None:
+        abort(404)
+    return render_template("item_detail.html", item=item)
+
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    conn = get_db()
+    items = conn.execute(
+        "SELECT items.*, categories.name AS category_name, places.name AS place_name "
+        "FROM items "
+        "JOIN categories ON categories.id = items.category_id "
+        "JOIN places ON places.id = items.place_id "
+        "WHERE items.user_id = ? "
+        "ORDER BY items.id DESC",
+        (current_user.id,),
+    ).fetchall()
+    conn.close()
+    active = [i for i in items if i["status"] == "active"]
+    closed = [i for i in items if i["status"] == "closed"]
+    return render_template("dashboard.html", active=active, closed=closed)
+
+
+@app.route("/item/<int:item_id>/close", methods=["POST"])
+@login_required
+def close_item(item_id):
+    conn = get_db()
+    item = conn.execute("SELECT * FROM items WHERE id = ?", (item_id,)).fetchone()
+    if item is None:
+        conn.close()
+        abort(404)
+    if item["user_id"] != current_user.id:  # закрыть можно только своё объявление
+        conn.close()
+        abort(403)
+    conn.execute("UPDATE items SET status = 'closed' WHERE id = ?", (item_id,))
+    conn.commit()
+    conn.close()
+    flash("Объявление закрыто.", "success")
+    return redirect(url_for("dashboard"))
 
 
 if __name__ == "__main__":

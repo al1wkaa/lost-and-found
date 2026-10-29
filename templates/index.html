@@ -19,6 +19,7 @@
           <h5 class="card-title mt-2">{{ item.title }}</h5>
           <p class="card-text text-muted">{{ item.category_name }} · {{ item.place_name }} · {{ item.date }}</p>
           <p class="card-text">{{ item.description }}</p>
+          <a href="{{ url_for('item_detail', item_id=item.id) }}" class="btn btn-sm btn-outline-primary">Подробнее</a>
         </div>
       </div>
     </div>

@@ -14,6 +14,7 @@
         {% if current_user.is_authenticated %}
           <span class="navbar-text me-2">{{ current_user.name }}</span>
           <a class="btn btn-outline-light btn-sm" href="{{ url_for('add') }}">Новое объявление</a>
+          <a class="btn btn-outline-light btn-sm" href="{{ url_for('dashboard') }}">Личный кабинет</a>
           <form method="post" action="{{ url_for('logout') }}" class="m-0">
             <button type="submit" class="btn btn-outline-secondary btn-sm">Выйти</button>
           </form>
