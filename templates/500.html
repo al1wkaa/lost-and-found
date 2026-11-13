@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Lost &amp; Found — Ошибка сервера{% endblock %}
+{% block content %}
+  <h1 class="h1">500 — что-то сломалось</h1>
+  <p class="page-sub">На сервере произошла ошибка. Мы уже разбираемся, попробуйте обновить страницу позже.</p>
+  <p style="margin-top: 24px;"><a class="btn btn--primary" href="{{ url_for('home') }}">На главную</a></p>
+{% endblock %}

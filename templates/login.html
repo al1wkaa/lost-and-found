@@ -1,19 +1,41 @@
 {% extends "base.html" %}
+{% block body_class %}page--auth{% endblock %}
+{% block title %}Lost &amp; Found — Вход{% endblock %}
 
-{% block title %}Вход{% endblock %}
+{% block header %}
+<header class="header header--compact">
+  <div class="container header__inner">
+    <a class="brand" href="{{ url_for('home') }}" aria-label="Lost &amp; Found — на главную">
+      <img class="brand__logo" src="{{ url_for('static', filename='images/logo.png') }}" width="60" height="60" alt="Нашлось!">
+      <span class="brand__name">Lost &amp; Found</span>
+    </a>
+  </div>
+</header>
+{% endblock %}
 
 {% block content %}
-<h1>Вход</h1>
-<form method="post" class="mt-3" style="max-width: 420px;">
-  <div class="mb-3">
-    <label class="form-label">Email</label>
-    <input type="email" name="email" class="form-control" required>
+  <div class="auth-head">
+    <h1 class="auth-head__title">С возвращением!</h1>
+    <p class="auth-head__subtitle">Войдите, чтобы продолжить в L&amp;F</p>
   </div>
-  <div class="mb-3">
-    <label class="form-label">Пароль</label>
-    <input type="password" name="password" class="form-control" required>
-  </div>
-  <button type="submit" class="btn btn-primary">Войти</button>
-  <a href="{{ url_for('register') }}" class="btn btn-link">Создать аккаунт</a>
-</form>
+
+  <form class="auth-card" method="post" action="{{ url_for('login') }}">
+    <div class="field">
+      <label class="field__label field__label--grey" for="login-email">Электронная почта</label>
+      <input class="input" type="email" id="login-email" name="email" placeholder="Введите email" autocomplete="email" required>
+    </div>
+    <div class="field">
+      <label class="field__label field__label--grey" for="login-password">Пароль</label>
+      <input class="input" type="password" id="login-password" name="password" placeholder="Введите пароль" autocomplete="current-password" required>
+    </div>
+    <div class="auth-card__row">
+      <label class="check">
+        <input class="check__box" type="checkbox" name="remember">
+        Запомнить меня
+      </label>
+    </div>
+    <button class="btn btn--primary btn--block" type="submit">Войти</button>
+  </form>
+
+  <p class="auth-foot">Нет аккаунта? <a class="check__link" href="{{ url_for('register') }}">Регистрация</a></p>
 {% endblock %}
