@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <title>Lost & Found — Связаться по поводу вещи</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page page--app">
+  <header class="header header--logged-in">
+    <div class="container header__inner">
+      <a class="brand" href="index.html" aria-label="Lost & Found — на главную">
+        <img class="brand__logo" src="assets/logo.svg" width="60" height="60" alt="">
+        <span class="brand__name">Lost &amp; Found</span>
+      </a>
+      <nav class="nav" aria-label="Основная навигация">
+        <a class="nav__link" href="index.html">Главная</a>
+        <a class="nav__link" href="lost.html">Пропажи</a>
+        <a class="nav__link" href="found.html">Находки</a>
+        <a class="nav__link nav__link--pill" href="submit.html" aria-current="page">Объявление</a>
+      </nav>
+      <div class="header__actions">
+        <a class="header__profile" href="profile.html" aria-label="Профиль">
+          <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="14" cy="11" r="3.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.5 22.2c1.4-3 3.8-4.4 6.5-4.4s5.1 1.4 6.5 4.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container container--narrow">
+      <h1 class="h1 h1--dark">Связаться по поводу вещи</h1>
+      <p class="page-sub">Свяжитесь с автором объявления об этой вещи</p>
+
+      <section class="contact-card" aria-label="Вещь">
+        <div class="placeholder placeholder--contact" role="img" aria-label="Заглушка фото 400 на 300">400 × 300</div>
+        <div>
+          <h2 class="contact-card__title">Золотое кольцо</h2>
+          <div class="contact-card__meta">
+            <p class="contact-card__meta-row">
+              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a4.8 4.8 0 0 1 4.8 4.8C12.8 9.9 8 14.5 8 14.5S3.2 9.9 3.2 6.3A4.8 4.8 0 0 1 8 1.5z" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="6.3" r="1.7" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+              Центральный парк
+            </p>
+            <p class="contact-card__meta-row">
+              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.8" y="2.8" width="12.4" height="11.4" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.8 6h12.4M5 1.2v3M11 1.2v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+              20.01.2024
+            </p>
+            <p class="contact-card__meta-row">
+              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="2.8" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2.8 14.4c1-2.8 3-4.2 5.2-4.2s4.2 1.4 5.2 4.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+              Сара Паркер
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="contact-card contact-card--form" aria-label="Контактные данные">
+        <h2 class="contact-card__title">Контактные данные</h2>
+        <div class="contact-form">
+          <div class="field">
+            <label class="field__label field__label--dark" for="contact-email">Электронная почта</label>
+            <div class="input-wrap">
+              <input class="input input--sm input--flat" type="email" id="contact-email" value="sarah.p@example.com" readonly>
+              <button class="btn btn--outline btn--sm input-wrap__action" type="button" data-copy="contact-email">Скопировать</button>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label field__label--dark" for="contact-phone">Номер телефона</label>
+            <div class="input-wrap">
+              <input class="input input--sm input--flat" type="tel" id="contact-phone" value="(555) 123-4567" readonly>
+              <button class="btn btn--outline btn--sm input-wrap__action" type="button" data-copy="contact-phone">Скопировать</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p class="footer__copy">© 2026 Lost &amp; Found. All rights reserved</p>
+      <nav class="footer__links" aria-label="Ссылки подвала">
+        <a class="footer__link" href="#">Конфиденциальность</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

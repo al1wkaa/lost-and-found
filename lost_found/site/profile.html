@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <title>Lost & Found — Профиль</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page page--app">
+  <header class="header header--logged-in">
+    <div class="container header__inner">
+      <a class="brand" href="index.html" aria-label="Lost & Found — на главную">
+        <img class="brand__logo" src="assets/logo.svg" width="60" height="60" alt="">
+        <span class="brand__name">Lost &amp; Found</span>
+      </a>
+      <nav class="nav" aria-label="Основная навигация">
+        <a class="nav__link" href="index.html">Главная</a>
+        <a class="nav__link" href="lost.html">Пропажи</a>
+        <a class="nav__link" href="found.html">Находки</a>
+        <a class="nav__link" href="submit.html">Объявление</a>
+      </nav>
+      <div class="header__actions">
+        <a class="header__profile" href="profile.html" aria-label="Профиль" aria-current="page">
+          <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="14" cy="11" r="3.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.5 22.2c1.4-3 3.8-4.4 6.5-4.4s5.1 1.4 6.5 4.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="profile-layout">
+        <aside class="profile-side">
+          <div class="profile-side__avatar" aria-hidden="true">ДА</div>
+          <h1 class="profile-side__name">Alibek Kassabulat</h1>
+          <p class="profile-side__email">kassabulatalibek@gmail.com</p>
+
+          <dl class="profile-stats">
+            <div class="profile-stats__item">
+              <dt class="profile-stats__num">5</dt>
+              <dd class="profile-stats__label">Объявления</dd>
+            </div>
+            <div class="profile-stats__item">
+              <dt class="profile-stats__num">2</dt>
+              <dd class="profile-stats__label">Найдено</dd>
+            </div>
+            <div class="profile-stats__item">
+              <dt class="profile-stats__num">3</dt>
+              <dd class="profile-stats__label">Совпадения</dd>
+            </div>
+          </dl>
+
+          <nav class="profile-nav" aria-label="Разделы профиля">
+            <button class="profile-nav__btn profile-nav__btn--active" type="button" aria-current="true">Мои объявления</button>
+            <a class="profile-nav__btn" href="notifications.html">Уведомления</a>
+            <a class="profile-nav__btn" href="settings.html">Настройки</a>
+          </nav>
+        </aside>
+
+        <section class="profile-content" aria-label="Ваши объявления">
+          <h2 class="profile-content__title">Ваши объявления</h2>
+          <div class="listing-list">
+            <article class="listing-row">
+              <div class="placeholder placeholder--thumb" role="img" aria-label="Заглушка фото 400 на 300">400 × 300</div>
+              <div class="listing-row__body">
+                <h3 class="listing-row__title">MacBook Pro</h3>
+                <p class="listing-row__loc">Центральная библиотека</p>
+                <p class="listing-row__status listing-row__status--lost">Потеряно</p>
+              </div>
+              <div class="listing-row__aside">
+                <span class="listing-row__date">20.01.2024</span>
+                <span class="badge badge--green">Активно</span>
+              </div>
+            </article>
+
+            <article class="listing-row">
+              <div class="placeholder placeholder--thumb" role="img" aria-label="Заглушка фото 400 на 300">400 × 300</div>
+              <div class="listing-row__body">
+                <h3 class="listing-row__title">AirPods Pro</h3>
+                <p class="listing-row__loc">Кампус университета</p>
+                <p class="listing-row__status listing-row__status--lost">Потеряно</p>
+              </div>
+              <div class="listing-row__aside">
+                <span class="listing-row__date">18.01.2024</span>
+                <a class="listing-row__status listing-row__status--link" href="claim.html">Найдено</a>
+              </div>
+            </article>
+
+            <article class="listing-row">
+              <div class="placeholder placeholder--thumb" role="img" aria-label="Заглушка фото 400 на 300">400 × 300</div>
+              <div class="listing-row__body">
+                <h3 class="listing-row__title">Рюкзак Nike</h3>
+                <p class="listing-row__loc">Городской спортзал</p>
+                <p class="listing-row__status listing-row__status--found">Найдено</p>
+              </div>
+              <div class="listing-row__aside">
+                <span class="listing-row__date">15.01.2024</span>
+                <span class="badge badge--green">Активно</span>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p class="footer__copy">© 2026 Lost &amp; Found. All rights reserved</p>
+      <nav class="footer__links" aria-label="Ссылки подвала">
+        <a class="footer__link" href="#">Конфиденциальность</a>
+        <a class="footer__link" href="#">Условия использования</a>
+        <a class="footer__link" href="contact.html">Контакты</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

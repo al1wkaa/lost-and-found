@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <title>Lost & Found — Подать объявление</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page page--auth">
+  <header class="header header--logged-in">
+    <div class="container header__inner">
+      <a class="brand" href="index.html" aria-label="Lost & Found — на главную">
+        <img class="brand__logo" src="assets/logo.svg" width="60" height="60" alt="">
+        <span class="brand__name">Lost &amp; Found</span>
+      </a>
+      <nav class="nav" aria-label="Основная навигация">
+        <a class="nav__link" href="index.html">Главная</a>
+        <a class="nav__link" href="lost.html">Пропажи</a>
+        <a class="nav__link" href="found.html">Находки</a>
+        <a class="nav__link nav__link--active" href="submit.html" aria-current="page">Объявление</a>
+      </nav>
+      <div class="header__actions">
+        <a class="header__profile" href="profile.html" aria-label="Профиль">
+          <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="14" cy="11" r="3.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.5 22.2c1.4-3 3.8-4.4 6.5-4.4s5.1 1.4 6.5 4.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container container--narrow">
+      <h1 class="h1 h1--dark">Подать объявление</h1>
+      <p class="page-sub">Укажите как можно больше деталей, чтобы помочь опознать вещь.</p>
+
+      <form class="submit-card" id="submit-form" novalidate>
+        <div class="submit-card__toggle" role="group" aria-label="Тип объявления">
+          <button class="btn btn--primary" type="button" data-toggle aria-pressed="true">Я потерял вещь</button>
+          <button class="btn btn--secondary" type="button" data-toggle aria-pressed="false">Я нашёл вещь</button>
+        </div>
+
+        <div class="submit-card__form">
+          <div class="field">
+            <label class="field__label field__label--dark" for="item-title">Название вещи*</label>
+            <input class="input" type="text" id="item-title" name="title" placeholder="Например, чёрный рюкзак Nike" required>
+          </div>
+          <div class="field">
+            <label class="field__label field__label--dark" for="item-category">Категория*</label>
+            <select class="select" id="item-category" name="category" required>
+              <option value="" selected>Выберите категорию</option>
+              <option>Электроника</option>
+              <option>Сумки</option>
+              <option>Украшения</option>
+              <option>Аксессуары</option>
+            </select>
+          </div>
+          <div class="submit-card__row">
+            <div class="field">
+              <label class="field__label field__label--dark" for="item-place">Место*</label>
+              <input class="input" type="text" id="item-place" name="place" placeholder="Где потеряли или нашли?" required>
+            </div>
+            <div class="field">
+              <label class="field__label field__label--dark" for="item-date">Дата*</label>
+              <input class="input" type="text" id="item-date" name="date" data-date-input required>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label field__label--dark" for="item-desc">Описание*</label>
+            <textarea class="textarea" id="item-desc" name="description" required></textarea>
+          </div>
+          <div class="field">
+            <label class="field__label field__label--dark" for="item-contact">Контактные данные*</label>
+            <input class="input" type="text" id="item-contact" name="contact" placeholder="Ваш email или номер телефона" required>
+          </div>
+        </div>
+
+        <div class="submit-card__actions">
+          <button class="btn btn--secondary" type="button">Отмена</button>
+          <button class="btn btn--primary" type="submit">Опубликовать</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p class="footer__copy">© 2026 Lost &amp; Found. All rights reserved</p>
+      <nav class="footer__links" aria-label="Ссылки подвала">
+        <a class="footer__link" href="#">Конфиденциальность</a>
+        <a class="footer__link" href="#">Условия использования</a>
+        <a class="footer__link" href="contact.html">Контакты</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
