@@ -13,7 +13,6 @@
 """
 import argparse
 import os
-import sys
 import tempfile
 
 parser = argparse.ArgumentParser(description="Подбор весов алгоритма совпадений")

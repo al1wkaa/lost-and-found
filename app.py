@@ -163,7 +163,9 @@ def build_filters(args, categories, places):
         conditions.append("items.date >= ?")
         params.append(date_from.isoformat())
 
-    has_filters = bool(item_type or q or category_id or place_id or date_from)
+    # type — обязательный параметр страницы (lost/found), а не фильтр:
+    # учитываем только то, что пользователь задал поверх типа.
+    has_filters = bool(q or category_id or place_id or date_from)
     return {
         "conditions": conditions,
         "params": params,
