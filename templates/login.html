@@ -20,6 +20,7 @@
   </div>
 
   <form class="auth-card" method="post" action="{{ url_for('login') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="field">
       <label class="field__label field__label--grey" for="login-email">Электронная почта</label>
       <input class="input" type="email" id="login-email" name="email" placeholder="Введите email" autocomplete="email" required>

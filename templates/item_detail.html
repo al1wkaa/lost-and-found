@@ -76,6 +76,7 @@
     </section>
 
     <form method="post" action="{{ url_for('close_item', item_id=item.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button class="btn btn--secondary" type="submit">Закрыть объявление</button>
     </form>
   {% endif %}

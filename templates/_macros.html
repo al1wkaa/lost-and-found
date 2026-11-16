@@ -50,10 +50,12 @@
     {% endif %}
     {% if show_actions and m.status == 'new' %}
       <form method="post" action="{{ url_for('match_confirm', match_id=m.match_id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="next" value="{{ next_path }}">
         <button class="btn btn--primary btn--sm" type="submit">Это моё</button>
       </form>
       <form method="post" action="{{ url_for('match_reject', match_id=m.match_id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="next" value="{{ next_path }}">
         <button class="btn btn--secondary btn--sm" type="submit">Не подходит</button>
       </form>

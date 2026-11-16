@@ -7,6 +7,7 @@
   <p class="page-sub">Укажите как можно больше деталей, чтобы помочь опознать вещь.</p>
 
   <form class="submit-card" method="post" action="{{ url_for('add') }}" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="submit-card__toggle" role="group" aria-label="Тип объявления">
       <label class="btn btn--secondary">
         <input type="radio" name="type" value="lost"{% if form.type != 'found' %} checked{% endif %}>

@@ -20,6 +20,7 @@
   </div>
 
   <form class="auth-card" method="post" action="{{ url_for('register') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="field">
       <label class="field__label field__label--grey" for="signup-name">Полное имя</label>
       <input class="input" type="text" id="signup-name" name="name" placeholder="Введите полное имя" autocomplete="name" required>
@@ -30,8 +31,8 @@
     </div>
     <div class="field">
       <label class="field__label field__label--grey" for="signup-password">Пароль</label>
-      <input class="input" type="password" id="signup-password" name="password" placeholder="Придумайте пароль" autocomplete="new-password" minlength="6" required>
-      <p class="field__hint">Не менее 6 символов</p>
+      <input class="input" type="password" id="signup-password" name="password" placeholder="Придумайте пароль" autocomplete="new-password" minlength="8" required>
+      <p class="field__hint">Не менее 8 символов</p>
     </div>
     <div class="field">
       <label class="field__label field__label--grey" for="signup-password2">Подтвердите пароль</label>

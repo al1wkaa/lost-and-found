@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Lost &amp; Found — Доступ запрещён{% endblock %}
+{% block content %}
+  <h1 class="h1">403 — доступ запрещён</h1>
+  <p class="page-sub">У вас нет прав для этого действия. Если это ваша вещь, войдите под нужным аккаунтом.</p>
+  <p style="margin-top: 24px;"><a class="btn btn--primary" href="{{ url_for('home') }}">На главную</a></p>
+{% endblock %}

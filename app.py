@@ -8,6 +8,8 @@ from flask import (Flask, render_template, request, redirect, url_for, flash,
                    abort, send_from_directory)
 from flask_login import (LoginManager, UserMixin, login_user, logout_user,
                          login_required, current_user)
+from flask_wtf import CSRFProtect
+from flask_wtf.csrf import CSRFError
 from PIL import Image, ImageOps, UnidentifiedImageError
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -16,15 +18,36 @@ from matching import (find_matches_for, load_matches_for_item,
                       load_matches_for_user, MIN_SCORE)
 
 app = Flask(__name__)
-# Секретный ключ подписывает сессии. На хостинге задайте свой через переменную окружения SECRET_KEY.
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-only-change-me")
+
+# ------------------------- Конфигурация и секреты -------------------------
+# Секретный ключ — только из переменной окружения. В режиме разработки
+# допустимо запасное значение, в production без ключа приложение не запускается.
+IS_PRODUCTION = bool(os.environ.get("RENDER")) or os.environ.get("FLASK_ENV") == "production"
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    if IS_PRODUCTION:
+        raise RuntimeError(
+            "Переменная окружения SECRET_KEY не задана. "
+            "В production задайте её перед запуском приложения.")
+    SECRET_KEY = "dev-only-change-me"
+app.config["SECRET_KEY"] = SECRET_KEY
+
 # Папка для фотографий объявлений (поле items.photo), путь можно переопределить через UPLOAD_DIR
 app.config["UPLOAD_FOLDER"] = os.environ.get("UPLOAD_DIR") or os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "uploads")
 # Максимум для загружаемых файлов (включая фото): 5 МБ
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
+
+# Безопасные параметры сессии: HTTPS-cookie в production
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = IS_PRODUCTION
+
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 init_db()
+
+# Защита CSRF для всех POST-форм
+csrf = CSRFProtect(app)
 
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
@@ -309,19 +332,19 @@ def register():
         contact = request.form.get("contact", "").strip()
 
         error = None
-        if not name:
-            error = "Введите имя."
-        elif not email:
-            error = "Введите email."
-        elif "@" not in email or "." not in email:
-            error = "Введите корректный email."
-        elif not password:
-            error = "Введите пароль."
-        elif len(password) < 6:
-            error = "Пароль должен быть не короче 6 символов."
+        if not name or len(name.split()) < 2:
+            error = "Введите имя и фамилию"
+        elif len(name) > 100:
+            error = "Имя не должно быть длиннее 100 символов"
+        elif not email or "@" not in email or "." not in email:
+            error = "Введите корректный адрес электронной почты"
+        elif len(password) < 8:
+            error = "Пароль должен содержать не менее 8 символов"
         elif password != password2:
             # подтверждение пароля из формы регистрации вёрстки
-            error = "Пароли не совпадают."
+            error = "Пароли не совпадают"
+        elif len(contact) > 100:
+            error = "Контакт не должен быть длиннее 100 символов"
 
         if error is None:
             conn = get_db()
@@ -332,7 +355,7 @@ def register():
                 )
                 conn.commit()
             except sqlite3.IntegrityError:
-                error = "Пользователь с таким email уже существует."
+                error = "Этот адрес электронной почты уже зарегистрирован"
             finally:
                 conn.close()
 
@@ -354,7 +377,7 @@ def login():
         password = request.form.get("password", "")
 
         if not email or not password:
-            flash("Введите email и пароль.", "danger")
+            flash("Введите почту и пароль.", "danger")
         else:
             conn = get_db()
             row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
@@ -365,10 +388,11 @@ def login():
                 remember = request.form.get("remember") is not None
                 login_user(User(row), remember=remember)
                 next_page = request.args.get("next")
+                # перенаправление только на адреса внутри сайта
                 return redirect(next_page if is_safe_next(next_page) else url_for("home"))
 
-            # одно и то же сообщение для неверного email и неверного пароля
-            flash("Неверный email или пароль.", "danger")
+            # одно и то же сообщение для неверной почты и неверного пароля
+            flash("Неверная почта или пароль", "danger")
 
     return render_template("login.html")
 
@@ -627,10 +651,25 @@ def not_found(error):
     return render_template("404.html"), 404
 
 
+@app.errorhandler(403)
+def forbidden(error):
+    return render_template("403.html"), 403
+
+
 @app.errorhandler(413)
 def request_too_large(error):
     flash("Файл слишком большой, максимум 5 МБ", "danger")
     return redirect(url_for("add"))
+
+
+@app.errorhandler(CSRFError)
+def csrf_error(error):
+    flash("Сессия устарела, повторите действие", "danger")
+    # возврат на предыдущую страницу или главную, без трассировки
+    target = request.referrer
+    if not is_safe_next(target):
+        target = url_for("home")
+    return redirect(target)
 
 
 @app.errorhandler(500)
@@ -639,4 +678,5 @@ def internal_error(error):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # debug включается только явно, переменной окружения FLASK_DEBUG=1
+    app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
