@@ -20,3 +20,23 @@
   <a class="item-card__link" href="{{ url_for('item_detail', item_id=item.id) }}">Подробнее</a>
 </article>
 {% endmacro %}
+
+{# Блок пагинации (показывается, только если страниц больше одной).
+   pag — данные пагинации из маршрута, endpoint — имя маршрута списка. #}
+{% macro pagination(pag, endpoint) %}
+{% if pag.pages > 1 %}
+<nav class="chips pagination" aria-label="Страницы">
+  {% if pag.has_prev %}
+    <a class="chip" href="{{ url_for(endpoint, page=pag.page - 1, **pag.args) }}">Назад</a>
+  {% endif %}
+  {% for n in range(1, pag.pages + 1) %}
+    <a class="chip{% if n == pag.page %} chip--active{% endif %}"
+       href="{{ url_for(endpoint, page=n, **pag.args) }}"
+       {% if n == pag.page %}aria-current="page"{% endif %}>{{ n }}</a>
+  {% endfor %}
+  {% if pag.has_next %}
+    <a class="chip" href="{{ url_for(endpoint, page=pag.page + 1, **pag.args) }}">Вперёд</a>
+  {% endif %}
+</nav>
+{% endif %}
+{% endmacro %}

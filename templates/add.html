@@ -6,14 +6,14 @@
   <h1 class="h1 h1--dark">Подать объявление</h1>
   <p class="page-sub">Укажите как можно больше деталей, чтобы помочь опознать вещь.</p>
 
-  <form class="submit-card" method="post" action="{{ url_for('add') }}">
+  <form class="submit-card" method="post" action="{{ url_for('add') }}" enctype="multipart/form-data">
     <div class="submit-card__toggle" role="group" aria-label="Тип объявления">
       <label class="btn btn--secondary">
-        <input type="radio" name="type" value="lost" checked>
+        <input type="radio" name="type" value="lost"{% if form.type != 'found' %} checked{% endif %}>
         Я потерял вещь
       </label>
       <label class="btn btn--secondary">
-        <input type="radio" name="type" value="found">
+        <input type="radio" name="type" value="found"{% if form.type == 'found' %} checked{% endif %}>
         Я нашёл вещь
       </label>
     </div>
@@ -21,14 +21,14 @@
     <div class="submit-card__form">
       <div class="field">
         <label class="field__label field__label--dark" for="item-title">Название вещи*</label>
-        <input class="input" type="text" id="item-title" name="title" placeholder="Например, чёрный рюкзак Nike" required>
+        <input class="input" type="text" id="item-title" name="title" value="{{ form.title }}" placeholder="Например, чёрный рюкзак Nike" required>
       </div>
       <div class="field">
         <label class="field__label field__label--dark" for="item-category">Категория*</label>
         <select class="select" id="item-category" name="category_id" required>
-          <option value="" selected>Выберите категорию</option>
+          <option value=""{% if not form.category_id %} selected{% endif %}>Выберите категорию</option>
           {% for c in categories %}
-            <option value="{{ c.id }}">{{ c.name }}</option>
+            <option value="{{ c.id }}"{% if form.category_id == c.id|string %} selected{% endif %}>{{ c.name }}</option>
           {% endfor %}
         </select>
       </div>
@@ -36,20 +36,26 @@
         <div class="field">
           <label class="field__label field__label--dark" for="item-place">Место*</label>
           <select class="select" id="item-place" name="place_id" required>
-            <option value="" selected>Где потеряли или нашли?</option>
+            <option value=""{% if not form.place_id %} selected{% endif %}>Где потеряли или нашли?</option>
             {% for p in places %}
-              <option value="{{ p.id }}">{{ p.name }}</option>
+              <option value="{{ p.id }}"{% if form.place_id == p.id|string %} selected{% endif %}>{{ p.name }}</option>
             {% endfor %}
           </select>
         </div>
         <div class="field">
           <label class="field__label field__label--dark" for="item-date">Дата*</label>
-          <input class="input" type="date" id="item-date" name="date" required>
+          <input class="input" type="date" id="item-date" name="date" value="{{ form.date }}" required>
         </div>
       </div>
       <div class="field">
-        <label class="field__label field__label--dark" for="item-desc">Описание*</label>
-        <textarea class="textarea" id="item-desc" name="description" required></textarea>
+        <label class="field__label field__label--dark" for="item-desc">Описание</label>
+        <textarea class="textarea" id="item-desc" name="description" placeholder="Опишите вещь: цвет, приметы, содержимое">{{ form.description }}</textarea>
+        <p class="field__hint">Необязательно, не длиннее 1000 символов</p>
+      </div>
+      <div class="field">
+        <label class="field__label field__label--dark" for="item-photo">Фото вещи</label>
+        <input class="input input--flat" type="file" id="item-photo" name="photo" accept="image/jpeg,image/png,image/webp">
+        <p class="field__hint">Необязательно. JPEG, PNG или WebP, до 5 МБ</p>
       </div>
       <div class="field">
         <label class="field__label field__label--dark" for="item-contact">Контактные данные</label>
