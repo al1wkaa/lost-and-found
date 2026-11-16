@@ -8,13 +8,13 @@
   <p class="page-sub">Категория: {{ item.category_name }} · {{ 'Потеря' if item.type == 'lost' else 'Находка' }}</p>
 
   <section class="contact-card" aria-label="Вещь">
-    <div class="placeholder placeholder--contact{% if item.photo %} placeholder--photo{% endif %}">
+    <a class="placeholder placeholder--contact{% if item.photo %} placeholder--photo{% endif %}" href="{{ url_for('items_list', type=item.type) }}" aria-label="К списку">
       {% if item.photo %}
         <img src="{{ url_for('uploads', filename=item.photo) }}" alt="{{ item.title }}">
       {% else %}
         400 × 300
       {% endif %}
-    </div>
+    </a>
     <div>
       <h2 class="contact-card__title">{{ item.title }}</h2>
       <div class="contact-card__meta">
@@ -80,4 +80,6 @@
       <button class="btn btn--secondary" type="submit">Закрыть объявление</button>
     </form>
   {% endif %}
+
+  <p style="margin-top: 24px;"><a class="check__link" href="{{ url_for('items_list', type=item.type) }}">Назад к списку</a></p>
 {% endblock %}

@@ -1,13 +1,13 @@
 {# Общий макрос карточки объявления (вёрстка lost_found/site/lost.html) #}
 {% macro item_card(item) %}
 <article class="item-card">
-  <div class="placeholder placeholder--card item-card__img{% if item.photo %} placeholder--photo{% endif %}">
+  <a class="placeholder placeholder--card item-card__img{% if item.photo %} placeholder--photo{% endif %}" href="{{ url_for('item_detail', item_id=item.id) }}" aria-label="{{ item.title }}">
     {% if item.photo %}
       <img src="{{ url_for('uploads', filename=item.photo) }}" alt="{{ item.title }}">
     {% else %}
       400 × 300
     {% endif %}
-  </div>
+  </a>
   <div class="item-card__head">
     <h3 class="item-card__title"><a href="{{ url_for('item_detail', item_id=item.id) }}">{{ item.title }}</a></h3>
     <span class="item-card__date">{{ item.date|ru_date }}</span>

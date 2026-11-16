@@ -580,6 +580,74 @@ def dashboard():
                            stats=stats, suggested=suggested)
 
 
+@app.route("/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+    """Профиль: данные пользователя (имя, контакт) и смена пароля."""
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE id = ?", (current_user.id,)).fetchone()
+    if user is None:
+        conn.close()
+        abort(404)
+
+    if request.method == "POST":
+        if request.form.get("action") == "password":
+            # форма 2: смена пароля
+            current_password = request.form.get("current_password", "")
+            new_password = request.form.get("new_password", "")
+            password2 = request.form.get("password2", "")
+
+            error = None
+            if not check_password_hash(user["password_hash"], current_password):
+                error = "Неверный текущий пароль"
+            elif len(new_password) < 8:
+                error = "Пароль должен содержать не менее 8 символов"
+            elif new_password != password2:
+                error = "Пароли не совпадают"
+            elif new_password == current_password:
+                error = "Новый пароль должен отличаться от текущего"
+
+            if error is None:
+                conn.execute(
+                    "UPDATE users SET password_hash = ? WHERE id = ?",
+                    (generate_password_hash(new_password), current_user.id))
+                conn.commit()
+                flash("Пароль изменён", "success")
+                conn.close()
+                return redirect(url_for("profile"))
+            conn.close()
+            flash(error, "danger")
+            return redirect(url_for("profile"))
+
+        # форма 1: имя и контакт
+        name = request.form.get("name", "").strip()
+        contact = request.form.get("contact", "").strip()
+
+        error = None
+        if not name or len(name.split()) < 2:
+            error = "Введите имя и фамилию"
+        elif len(name) > 100:
+            error = "Имя не должно быть длиннее 100 символов"
+        elif len(contact) > 100:
+            error = "Контакт не должен быть длиннее 100 символов"
+
+        if error is None:
+            conn.execute(
+                "UPDATE users SET name = ?, contact = ? WHERE id = ?",
+                (name, contact or None, current_user.id))
+            conn.commit()
+            flash("Профиль обновлён", "success")
+            conn.close()
+            return redirect(url_for("profile"))
+
+        conn.close()
+        flash(error, "danger")
+        return redirect(url_for("profile"))
+
+    conn.close()
+    return render_template("profile.html")
+
+
 @app.route("/item/<int:item_id>/close", methods=["POST"])
 @login_required
 def close_item(item_id):

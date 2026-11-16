@@ -20,6 +20,10 @@
         <a class="nav__link{% if request.path == '/items' and request.args.get('type') != 'found' %} nav__link--active{% endif %}" href="{{ url_for('items_list', type='lost') }}">Пропажи</a>
         <a class="nav__link{% if request.path == '/items' and request.args.get('type') == 'found' %} nav__link--active{% endif %}" href="{{ url_for('items_list', type='found') }}">Находки</a>
         <a class="nav__link{% if request.path == '/add' %} nav__link--active{% endif %}" href="{{ url_for('add') }}">Объявление</a>
+        {% if current_user.is_authenticated %}
+          <a class="nav__link{% if request.path == '/dashboard' %} nav__link--active{% endif %}" href="{{ url_for('dashboard') }}">Мои объявления</a>
+          <a class="nav__link{% if request.path == '/profile' %} nav__link--active{% endif %}" href="{{ url_for('profile') }}">Профиль</a>
+        {% endif %}
       </nav>
       <div class="header__actions">
         {% if current_user.is_authenticated %}
