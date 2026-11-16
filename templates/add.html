@@ -1,44 +1,66 @@
 {% extends "base.html" %}
+{% block body_class %}page--auth{% endblock %}
+{% block title %}Lost &amp; Found — Подать объявление{% endblock %}
 
 {% block content %}
-<h1>Новое объявление</h1>
-<form method="post" class="mt-3" style="max-width: 600px;">
-  <div class="mb-3">
-    <label class="form-label">Тип</label>
-    <select name="type" class="form-select" required>
-      <option value="lost">Я потерял</option>
-      <option value="found">Я нашёл</option>
-    </select>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Категория</label>
-    <select name="category_id" class="form-select" required>
-      {% for c in categories %}
-        <option value="{{ c.id }}">{{ c.name }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Название</label>
-    <input type="text" name="title" class="form-control" required>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Описание</label>
-    <textarea name="description" class="form-control" rows="3"></textarea>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Место</label>
-    <select name="place_id" class="form-select" required>
-      {% for p in places %}
-        <option value="{{ p.id }}">{{ p.name }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Дата</label>
-    <input type="date" name="date" class="form-control" required>
-  </div>
-  <button type="submit" class="btn btn-primary">Опубликовать</button>
-  <a href="/" class="btn btn-link">Отмена</a>
-</form>
+  <h1 class="h1 h1--dark">Подать объявление</h1>
+  <p class="page-sub">Укажите как можно больше деталей, чтобы помочь опознать вещь.</p>
+
+  <form class="submit-card" method="post" action="{{ url_for('add') }}">
+    <div class="submit-card__toggle" role="group" aria-label="Тип объявления">
+      <label class="btn btn--secondary">
+        <input type="radio" name="type" value="lost" checked>
+        Я потерял вещь
+      </label>
+      <label class="btn btn--secondary">
+        <input type="radio" name="type" value="found">
+        Я нашёл вещь
+      </label>
+    </div>
+
+    <div class="submit-card__form">
+      <div class="field">
+        <label class="field__label field__label--dark" for="item-title">Название вещи*</label>
+        <input class="input" type="text" id="item-title" name="title" placeholder="Например, чёрный рюкзак Nike" required>
+      </div>
+      <div class="field">
+        <label class="field__label field__label--dark" for="item-category">Категория*</label>
+        <select class="select" id="item-category" name="category_id" required>
+          <option value="" selected>Выберите категорию</option>
+          {% for c in categories %}
+            <option value="{{ c.id }}">{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="submit-card__row">
+        <div class="field">
+          <label class="field__label field__label--dark" for="item-place">Место*</label>
+          <select class="select" id="item-place" name="place_id" required>
+            <option value="" selected>Где потеряли или нашли?</option>
+            {% for p in places %}
+              <option value="{{ p.id }}">{{ p.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label field__label--dark" for="item-date">Дата*</label>
+          <input class="input" type="date" id="item-date" name="date" required>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field__label field__label--dark" for="item-desc">Описание*</label>
+        <textarea class="textarea" id="item-desc" name="description" required></textarea>
+      </div>
+      <div class="field">
+        <label class="field__label field__label--dark" for="item-contact">Контактные данные</label>
+        <input class="input input--flat" type="text" id="item-contact" value="{{ current_user.contact or 'Контакт не указан в профиле' }}" readonly>
+        <p class="field__hint">Контакт берётся из вашего профиля и виден вошедшим пользователям</p>
+      </div>
+    </div>
+
+    <div class="submit-card__actions">
+      <a class="btn btn--secondary" href="{{ url_for('home') }}">Отмена</a>
+      <button class="btn btn--primary" type="submit">Опубликовать</button>
+    </div>
+  </form>
 {% endblock %}

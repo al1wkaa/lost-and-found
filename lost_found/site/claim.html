@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <title>Lost & Found — Это моя вещь</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<!-- По референсу у этой страницы нет шапки и подвала -->
+<body class="page page--claim">
+  <main>
+    <div class="container container--claim">
+      <h1 class="h1">Это моя вещь</h1>
+
+      <form class="claim-card" id="claim-form" novalidate>
+        <section class="claim-contacts" aria-label="Контакты нашедшего">
+          <h2 class="claim-contacts__title">Контакты нашедшего</h2>
+          <div class="claim-contacts__grid">
+            <div>
+              <p class="claim-contacts__label">Кто нашёл</p>
+              <p class="claim-contacts__value">Димаш Канай</p>
+            </div>
+            <div>
+              <p class="claim-contacts__label">Дата находки</p>
+              <p class="claim-contacts__value">20 октября 2026 г.</p>
+            </div>
+            <div>
+              <p class="claim-contacts__label">Электронная почта</p>
+              <p class="claim-contacts__value"><a class="claim-contacts__value--link" href="mailto:dimashkanai@gmail.com">dimashkanai@gmail.com</a></p>
+            </div>
+            <div>
+              <p class="claim-contacts__label">Телефон</p>
+              <p class="claim-contacts__value">+7(777)-777-7777</p>
+            </div>
+            <div>
+              <p class="claim-contacts__label">Место нахождения</p>
+              <p class="claim-contacts__value">Корпус 4</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="claim-body">
+          <div class="claim-body__photo-col">
+            <div class="placeholder placeholder--claim" role="img" aria-label="Заглушка фото 400 на 300">400 × 300</div>
+            <button class="btn btn--soft btn--sm btn--block" type="button">Подтвердите право на вещь</button>
+            <p class="claim-body__hint">Загрузите фото, подтверждающее, что вещь ваша</p>
+          </div>
+
+          <div class="claim-body__form-col">
+            <div class="field">
+              <label class="field__label" for="claim-name">Ваше имя</label>
+              <input class="input input--sm" type="text" id="claim-name" name="name" placeholder="Введите полное имя" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label class="field__label" for="claim-email">Электронная почта</label>
+              <input class="input input--sm" type="email" id="claim-email" name="email" placeholder="Введите email" autocomplete="email" required>
+            </div>
+            <div class="field">
+              <label class="field__label" for="claim-phone">Номер телефона</label>
+              <input class="input input--sm" type="tel" id="claim-phone" name="phone" placeholder="Введите номер телефона" autocomplete="tel" required>
+            </div>
+          </div>
+
+          <div class="field claim-body__full">
+            <label class="field__label" for="claim-desc">Опишите вашу вещь</label>
+            <textarea class="textarea" id="claim-desc" name="description" required></textarea>
+          </div>
+          <div class="field claim-body__full">
+            <label class="field__label" for="claim-extra">Дополнительная информация</label>
+            <textarea class="textarea" id="claim-extra" name="extra"></textarea>
+          </div>
+        </div>
+
+        <div class="claim-actions">
+          <button class="btn btn--secondary" type="button">Отмена</button>
+          <button class="btn btn--primary" type="submit">Отправить заявку</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

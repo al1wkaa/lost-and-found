@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block body_class %}page--app{% endblock %}
+{% block title %}Lost &amp; Found — Личный кабинет{% endblock %}
+
+{% set name_parts = current_user.name.split() %}
+{% set initials = (name_parts[0][0] ~ (name_parts[1][0] if name_parts|length > 1 else ''))|upper %}
+
+{% block content %}
+  <div class="profile-layout">
+    <aside class="profile-side">
+      <div class="profile-side__avatar" aria-hidden="true">{{ initials }}</div>
+      <h1 class="profile-side__name">{{ current_user.name }}</h1>
+      <p class="profile-side__email">{{ current_user.email }}</p>
+
+      <dl class="profile-stats">
+        <div class="profile-stats__item">
+          <dt class="profile-stats__num">{{ stats.total }}</dt>
+          <dd class="profile-stats__label">Объявления</dd>
+        </div>
+        <div class="profile-stats__item">
+          <dt class="profile-stats__num">{{ stats.found }}</dt>
+          <dd class="profile-stats__label">Найдено</dd>
+        </div>
+        <div class="profile-stats__item">
+          <dt class="profile-stats__num">{{ stats.matches }}</dt>
+          <dd class="profile-stats__label">Совпадения</dd>
+        </div>
+      </dl>
+
+      <nav class="profile-nav" aria-label="Разделы профиля">
+        <span class="profile-nav__btn profile-nav__btn--active">Мои объявления</span>
+      </nav>
+    </aside>
+
+    <section class="profile-content" aria-label="Ваши объявления">
+      <h2 class="profile-content__title">Ваши объявления</h2>
+      {% if active %}
+        <div class="listing-list">
+          {% for item in active %}
+            <article class="listing-row">
+              <div class="placeholder placeholder--thumb{% if item.photo %} placeholder--photo{% endif %}">
+                {% if item.photo %}<img src="{{ url_for('uploads', filename=item.photo) }}" alt="{{ item.title }}">{% else %}400×300{% endif %}
+              </div>
+              <div class="listing-row__body">
+                <h3 class="listing-row__title"><a href="{{ url_for('item_detail', item_id=item.id) }}">{{ item.title }}</a></h3>
+                <p class="listing-row__loc">{{ item.place_name }}</p>
+                <p class="listing-row__status {{ 'listing-row__status--lost' if item.type == 'lost' else 'listing-row__status--found' }}">{{ 'Потеряно' if item.type == 'lost' else 'Найдено' }}</p>
+              </div>
+              <div class="listing-row__aside">
+                <span class="listing-row__date">{{ item.date|ru_date }}</span>
+                <span class="badge badge--green">Активно</span>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="page-sub">Активных объявлений нет. <a class="check__link" href="{{ url_for('add') }}">Подать объявление</a></p>
+      {% endif %}
+
+      {% if closed %}
+        <h2 class="profile-content__title" style="margin-top: 24px;">Закрытые</h2>
+        <div class="listing-list">
+          {% for item in closed %}
+            <article class="listing-row">
+              <div class="placeholder placeholder--thumb{% if item.photo %} placeholder--photo{% endif %}">
+                {% if item.photo %}<img src="{{ url_for('uploads', filename=item.photo) }}" alt="{{ item.title }}">{% else %}400×300{% endif %}
+              </div>
+              <div class="listing-row__body">
+                <h3 class="listing-row__title"><a href="{{ url_for('item_detail', item_id=item.id) }}">{{ item.title }}</a></h3>
+                <p class="listing-row__loc">{{ item.place_name }}</p>
+                <p class="listing-row__status {{ 'listing-row__status--lost' if item.type == 'lost' else 'listing-row__status--found' }}">{{ 'Потеряно' if item.type == 'lost' else 'Найдено' }}</p>
+              </div>
+              <div class="listing-row__aside">
+                <span class="listing-row__date">{{ item.date|ru_date }}</span>
+                <span class="badge badge--orange">Закрыто</span>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}

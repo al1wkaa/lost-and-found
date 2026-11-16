@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <title>Lost & Found — Настройки</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<!-- По референсу подвала нет -->
+<body class="page page--app">
+  <header class="header header--logged-in header--nav-3">
+    <div class="container header__inner">
+      <a class="brand" href="index.html" aria-label="Lost & Found — на главную">
+        <img class="brand__logo" src="assets/logo.svg" width="60" height="60" alt="">
+        <span class="brand__name">Lost &amp; Found</span>
+      </a>
+      <nav class="nav" aria-label="Основная навигация">
+        <a class="nav__link" href="index.html">Главная</a>
+        <a class="nav__link" href="lost.html">Пропажи</a>
+        <a class="nav__link" href="found.html">Находки</a>
+        <a class="nav__link" href="submit.html">Объявление</a>
+      </nav>
+      <div class="header__actions">
+        <a class="header__profile" href="profile.html" aria-label="Профиль">
+          <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="14" cy="11" r="3.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.5 22.2c1.4-3 3.8-4.4 6.5-4.4s5.1 1.4 6.5 4.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container container--mid">
+      <h1 class="h1 h1--dark">Настройки</h1>
+      <p class="page-sub">Управляйте настройками своего аккаунта</p>
+
+      <div class="settings-layout">
+        <aside class="settings-nav" aria-label="Разделы настроек">
+          <button class="settings-nav__btn settings-nav__btn--active" type="button" aria-current="true">Профиль</button>
+          <a class="settings-nav__btn" href="notifications.html">Уведомления</a>
+          <a class="settings-nav__btn" href="#">Аккаунт</a>
+        </aside>
+
+        <section class="settings-panel" aria-label="Настройки профиля">
+          <h2 class="settings-panel__title">Настройки профиля</h2>
+          <div class="settings-panel__avatar-row">
+            <div class="settings-panel__avatar" aria-hidden="true">ДА</div>
+            <button class="btn btn--secondary" type="button">Изменить фото</button>
+          </div>
+
+          <form class="settings-form" id="settings-form" novalidate>
+            <div class="field">
+              <label class="field__label field__label--dark" for="settings-name">Полное имя</label>
+              <input class="input" type="text" id="settings-name" name="name" autocomplete="name">
+            </div>
+            <div class="field">
+              <label class="field__label field__label--dark" for="settings-email">Электронная почта</label>
+              <input class="input" type="email" id="settings-email" name="email" autocomplete="email">
+            </div>
+            <div class="field">
+              <label class="field__label field__label--dark" for="settings-phone">Номер телефона</label>
+              <input class="input" type="tel" id="settings-phone" name="phone" autocomplete="tel">
+            </div>
+            <button class="btn btn--primary settings-panel__save" type="submit">Сохранить</button>
+          </form>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

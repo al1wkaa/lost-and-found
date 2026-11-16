@@ -1,7 +1,9 @@
 import os
 import sqlite3
+from datetime import datetime
 
-from flask import Flask, render_template, request, redirect, url_for, flash, abort
+from flask import (Flask, render_template, request, redirect, url_for, flash,
+                   abort, send_from_directory)
 from flask_login import (LoginManager, UserMixin, login_user, logout_user,
                          login_required, current_user)
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -11,12 +13,23 @@ from db import get_db, init_db
 app = Flask(__name__)
 # Секретный ключ подписывает сессии. На хостинге задайте свой через переменную окружения SECRET_KEY.
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-only-change-me")
+# Папка для фотографий объявлений (поле items.photo)
+app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
 init_db()
 
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 login_manager.login_message = "Войдите, чтобы открыть эту страницу."
 login_manager.login_message_category = "warning"
+
+
+@app.template_filter("ru_date")
+def ru_date(value):
+    """Дата из базы (YYYY-MM-DD) в формат вёрстки DD.MM.YYYY."""
+    try:
+        return datetime.strptime(str(value)[:10], "%Y-%m-%d").strftime("%d.%m.%Y")
+    except ValueError:
+        return value
 
 
 class User(UserMixin):
@@ -61,18 +74,26 @@ def register():
         return redirect(url_for("home"))
 
     if request.method == "POST":
-        name = request.form["name"].strip()
-        email = request.form["email"].strip().lower()
-        password = request.form["password"]
-        contact = request.form["contact"].strip()
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        password2 = request.form.get("password2", "")
+        contact = request.form.get("contact", "").strip()
 
         error = None
         if not name:
             error = "Введите имя."
+        elif not email:
+            error = "Введите email."
         elif "@" not in email or "." not in email:
             error = "Введите корректный email."
+        elif not password:
+            error = "Введите пароль."
         elif len(password) < 6:
             error = "Пароль должен быть не короче 6 символов."
+        elif password != password2:
+            # подтверждение пароля из формы регистрации вёрстки
+            error = "Пароли не совпадают."
 
         if error is None:
             conn = get_db()
@@ -101,20 +122,25 @@ def login():
         return redirect(url_for("home"))
 
     if request.method == "POST":
-        email = request.form["email"].strip().lower()
-        password = request.form["password"]
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
 
-        conn = get_db()
-        row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-        conn.close()
+        if not email or not password:
+            flash("Введите email и пароль.", "danger")
+        else:
+            conn = get_db()
+            row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+            conn.close()
 
-        if row and check_password_hash(row["password_hash"], password):
-            login_user(User(row))
-            next_page = request.args.get("next")
-            return redirect(next_page if is_safe_next(next_page) else url_for("home"))
+            if row and check_password_hash(row["password_hash"], password):
+                # «Запомнить меня» — чекбокс формы входа из вёрстки
+                remember = request.form.get("remember") is not None
+                login_user(User(row), remember=remember)
+                next_page = request.args.get("next")
+                return redirect(next_page if is_safe_next(next_page) else url_for("home"))
 
-        # одно и то же сообщение для неверного email и неверного пароля
-        flash("Неверный email или пароль.", "danger")
+            # одно и то же сообщение для неверного email и неверного пароля
+            flash("Неверный email или пароль.", "danger")
 
     return render_template("login.html")
 
@@ -132,28 +158,84 @@ def logout():
 def add():
     conn = get_db()
     if request.method == "POST":
-        conn.execute(
-            "INSERT INTO items (user_id, category_id, place_id, type, title, description, date) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (
-                current_user.id,  # реальный автор объявления
-                request.form["category_id"],
-                request.form["place_id"],
-                request.form["type"],
-                request.form["title"],
-                request.form["description"],
-                request.form["date"],
-            ),
-        )
-        conn.commit()
-        conn.close()
-        flash("Объявление опубликовано.", "success")
-        return redirect(url_for("home"))
+        type_ = request.form.get("type", "")
+        category_id = request.form.get("category_id", "")
+        place_id = request.form.get("place_id", "")
+        title = request.form.get("title", "").strip()
+        description = request.form.get("description", "").strip()
+        date = request.form.get("date", "").strip()
+
+        if (type_ not in ("lost", "found") or not category_id.isdigit()
+                or not place_id.isdigit() or not title or not date):
+            flash("Заполните все обязательные поля.", "danger")
+            # продолжаем на отрисовку формы с категориями и местами
+        else:
+            conn.execute(
+                "INSERT INTO items (user_id, category_id, place_id, type, title, description, date) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (
+                    current_user.id,  # реальный автор объявления
+                    category_id,
+                    place_id,
+                    type_,
+                    title,
+                    description,
+                    date,
+                ),
+            )
+            conn.commit()
+            conn.close()
+            flash("Объявление опубликовано.", "success")
+            return redirect(url_for("home"))
 
     categories = conn.execute("SELECT * FROM categories ORDER BY name").fetchall()
     places = conn.execute("SELECT * FROM places ORDER BY name").fetchall()
     conn.close()
     return render_template("add.html", categories=categories, places=places)
+
+
+@app.route("/items")
+def items_list():
+    """Списки «Пропажи» и «Находки» из вёрстки (lost.html / found.html).
+
+    Поиск (q) и фильтр по категории (category_id) — через GET-параметры,
+    SQL — параметризованный.
+    """
+    item_type = "found" if request.args.get("type") == "found" else "lost"
+    q = request.args.get("q", "").strip()
+    category_id = request.args.get("category_id", type=int)
+
+    sql = (
+        "SELECT items.*, categories.name AS category_name, places.name AS place_name "
+        "FROM items "
+        "JOIN categories ON categories.id = items.category_id "
+        "JOIN places ON places.id = items.place_id "
+        "WHERE items.status = 'active' AND items.type = ?"
+    )
+    params = [item_type]
+    if q:
+        sql += " AND (items.title LIKE ? OR items.description LIKE ?)"
+        params += ["%" + q + "%", "%" + q + "%"]
+    if category_id is not None:
+        sql += " AND items.category_id = ?"
+        params.append(category_id)
+    sql += " ORDER BY items.id DESC"
+
+    conn = get_db()
+    items = conn.execute(sql, params).fetchall()
+    categories = conn.execute("SELECT * FROM categories ORDER BY name").fetchall()
+    conn.close()
+    return render_template(
+        "items.html",
+        items=items, categories=categories,
+        item_type=item_type, q=q, category_id=category_id,
+    )
+
+
+@app.route("/uploads/<path:filename>")
+def uploads(filename):
+    """Выдача фотографий объявлений (поле items.photo)."""
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 @app.route("/item/<int:item_id>")
 def item_detail(item_id):
@@ -190,7 +272,24 @@ def dashboard():
     conn.close()
     active = [i for i in items if i["status"] == "active"]
     closed = [i for i in items if i["status"] == "closed"]
-    return render_template("dashboard.html", active=active, closed=closed)
+
+    # Счётчики статистики профиля из вёрстки (все — из базы, без заглушек)
+    matches_conn = get_db()
+    matches = matches_conn.execute(
+        "SELECT COUNT(*) AS n FROM matches "
+        "JOIN items AS lost ON lost.id = matches.lost_item_id "
+        "JOIN items AS found ON found.id = matches.found_item_id "
+        "WHERE lost.user_id = ? OR found.user_id = ?",
+        (current_user.id, current_user.id),
+    ).fetchone()["n"]
+    matches_conn.close()
+
+    stats = {
+        "total": len(items),
+        "found": sum(1 for i in items if i["type"] == "found"),
+        "matches": matches,
+    }
+    return render_template("dashboard.html", active=active, closed=closed, stats=stats)
 
 
 @app.route("/item/<int:item_id>/close", methods=["POST"])
@@ -209,6 +308,16 @@ def close_item(item_id):
     conn.close()
     flash("Объявление закрыто.", "success")
     return redirect(url_for("dashboard"))
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template("404.html"), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    return render_template("500.html"), 500
 
 
 if __name__ == "__main__":
