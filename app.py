@@ -505,6 +505,12 @@ def items_list():
     )
 
 
+@app.route("/favicon.ico")
+def favicon():
+    # Браузер иногда запрашивает /favicon.ico напрямую; отдаём логотип.
+    return redirect(url_for("static", filename="images/logo.png"))
+
+
 @app.route("/uploads/<path:filename>")
 def uploads(filename):
     """Выдача фотографий объявлений (поле items.photo).
