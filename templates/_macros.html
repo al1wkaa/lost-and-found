@@ -21,6 +21,47 @@
 </article>
 {% endmacro %}
 
+{# Карточка совпадения «потерял/нашёл».
+   m — данные совпадения из matching.py, show_actions — кнопки «Это моё»
+   и «Не подходит» (только для автора потерянного объявления и статуса new). #}
+{% macro match_card(m, show_actions=False, next_path='') %}
+<article class="listing-row match-row">
+  <div class="placeholder placeholder--thumb{% if m.other.photo %} placeholder--photo{% endif %}">
+    {% if m.other.photo %}
+      <img src="{{ url_for('uploads', filename=m.other.photo) }}" alt="{{ m.other.title }}">
+    {% else %}
+      400×300
+    {% endif %}
+  </div>
+  <div class="listing-row__body">
+    <h3 class="listing-row__title"><a href="{{ url_for('item_detail', item_id=m.other.id) }}">{{ m.other.title }}</a></h3>
+    <p class="listing-row__loc">{{ m.other.place_name }} · {{ m.other.date|ru_date }}</p>
+    <p class="listing-row__loc">Почему подходит: {{ m.reasons|join(', ') }}</p>
+    <p class="listing-row__loc">Оценка системы: {{ m.score }} из 100</p>
+    {% if m.status == 'confirmed' %}
+      <p class="listing-row__loc">Контакт второй стороны: {{ m.contact or 'контакт не указан' }}</p>
+    {% endif %}
+  </div>
+  <div class="listing-row__aside">
+    {% if m.status == 'confirmed' %}
+      <span class="badge badge--green">Подтверждено</span>
+    {% elif m.status == 'new' %}
+      <span class="badge badge--orange">Новое</span>
+    {% endif %}
+    {% if show_actions and m.status == 'new' %}
+      <form method="post" action="{{ url_for('match_confirm', match_id=m.match_id) }}">
+        <input type="hidden" name="next" value="{{ next_path }}">
+        <button class="btn btn--primary btn--sm" type="submit">Это моё</button>
+      </form>
+      <form method="post" action="{{ url_for('match_reject', match_id=m.match_id) }}">
+        <input type="hidden" name="next" value="{{ next_path }}">
+        <button class="btn btn--secondary btn--sm" type="submit">Не подходит</button>
+      </form>
+    {% endif %}
+  </div>
+</article>
+{% endmacro %}
+
 {# Блок пагинации (показывается, только если страниц больше одной).
    pag — данные пагинации из маршрута, endpoint — имя маршрута списка. #}
 {% macro pagination(pag, endpoint) %}

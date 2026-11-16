@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import match_card %}
 {% block body_class %}page--app{% endblock %}
 {% block title %}Lost &amp; Found — Личный кабинет{% endblock %}
 
@@ -58,6 +59,7 @@
       {% endif %}
 
       {% if closed %}
+
         <h2 class="profile-content__title" style="margin-top: 24px;">Закрытые</h2>
         <div class="listing-list">
           {% for item in closed %}
@@ -77,6 +79,22 @@
             </article>
           {% endfor %}
         </div>
+      {% endif %}
+
+      <h2 class="profile-content__title" style="margin-top: 24px;">Предложенные совпадения</h2>
+      {% if suggested %}
+        {% for group in suggested %}
+          <h3 class="profile-content__title" style="margin-top: 12px; font-size: 18px;">
+            {{ group.item.title }} ({{ 'потеряно' if group.item.type == 'lost' else 'найдено' }})
+          </h3>
+          <div class="listing-list">
+            {% for m in group.matches %}
+              {{ match_card(m, show_actions=(group.item.type == 'lost'), next_path=url_for('dashboard')) }}
+            {% endfor %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="page-sub">Пока нет предложенных совпадений</p>
       {% endif %}
     </section>
   </div>

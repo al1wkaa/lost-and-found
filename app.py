@@ -12,6 +12,8 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from db import get_db, init_db
+from matching import (find_matches_for, load_matches_for_item,
+                      load_matches_for_user, MIN_SCORE)
 
 app = Flask(__name__)
 # Секретный ключ подписывает сессии. На хостинге задайте свой через переменную окружения SECRET_KEY.
@@ -419,6 +421,14 @@ def add():
                             photo_name,
                         ),
                     )
+                    # Подбор совпадений в той же транзакции, commit один раз.
+                    # Ошибка подбора не ломает публикацию.
+                    try:
+                        find_matches_for(conn, cur.lastrowid)
+                    except sqlite3.Error:
+                        app.logger.exception(
+                            "Не удалось подобрать совпадения для объявления %s",
+                            cur.lastrowid)
                     conn.commit()
                 except sqlite3.Error:
                     conn.rollback()
@@ -491,10 +501,16 @@ def item_detail(item_id):
         "WHERE items.id = ?",
         (item_id,),
     ).fetchone()
+    matches = []
+    # Совпадения видит только автор и только пока объявление активно
+    if item is not None and item["status"] == "active" \
+            and current_user.is_authenticated and current_user.id == item["user_id"]:
+        matches = load_matches_for_item(conn, item)
     conn.close()
     if item is None:
         abort(404)
-    return render_template("item_detail.html", item=item)
+    return render_template("item_detail.html", item=item, matches=matches,
+                           min_score=MIN_SCORE)
 
 
 @app.route("/dashboard")
@@ -530,7 +546,14 @@ def dashboard():
         "found": sum(1 for i in items if i["type"] == "found"),
         "matches": matches,
     }
-    return render_template("dashboard.html", active=active, closed=closed, stats=stats)
+
+    # Предложенные совпадения по всем активным объявлениям пользователя
+    conn = get_db()
+    suggested = load_matches_for_user(conn, current_user.id)
+    conn.close()
+
+    return render_template("dashboard.html", active=active, closed=closed,
+                           stats=stats, suggested=suggested)
 
 
 @app.route("/item/<int:item_id>/close", methods=["POST"])
@@ -549,6 +572,54 @@ def close_item(item_id):
     conn.close()
     flash("Объявление закрыто.", "success")
     return redirect(url_for("dashboard"))
+
+
+def _handle_match_action(match_id, new_status):
+    """Общая логика «Это моё» (confirmed) и «Не подходит» (rejected)."""
+    conn = get_db()
+    match = conn.execute("SELECT * FROM matches WHERE id = ?", (match_id,)).fetchone()
+    if match is None:
+        conn.close()
+        abort(404)
+    lost = conn.execute("SELECT * FROM items WHERE id = ?", (match["lost_item_id"],)).fetchone()
+    found = conn.execute("SELECT * FROM items WHERE id = ?", (match["found_item_id"],)).fetchone()
+
+    # подтвердить или отклонить может только автор потерянного объявления
+    if lost is None or found is None or lost["user_id"] != current_user.id:
+        conn.close()
+        abort(403)
+
+    # возврат на страницу, с которой пришло действие (только внутри сайта)
+    next_url = request.form.get("next") or request.referrer
+    if not is_safe_next(next_url):
+        next_url = url_for("home")
+
+    if match["status"] != "new" or lost["status"] != "active" or found["status"] != "active":
+        conn.close()
+        flash("Это совпадение уже обработано", "danger")
+        return redirect(next_url)
+
+    conn.execute("UPDATE matches SET status = ? WHERE id = ?", (new_status, match_id))
+    conn.commit()
+    conn.close()
+
+    if new_status == "confirmed":
+        flash("Отлично! Контакты участников доступны в разделе совпадений", "success")
+    else:
+        flash("Совпадение скрыто", "success")
+    return redirect(next_url)
+
+
+@app.route("/match/<int:match_id>/confirm", methods=["POST"])
+@login_required
+def match_confirm(match_id):
+    return _handle_match_action(match_id, "confirmed")
+
+
+@app.route("/match/<int:match_id>/reject", methods=["POST"])
+@login_required
+def match_reject(match_id):
+    return _handle_match_action(match_id, "rejected")
 
 
 @app.errorhandler(404)
