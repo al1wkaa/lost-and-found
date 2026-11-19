@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Lost &amp; Found — Файл слишком большой{% endblock %}
+{% block content %}
+  <h1 class="h1">413 — файл слишком большой</h1>
+  <p class="page-sub">Загружаемый файл превышает лимит 5 МБ. Выберите фото поменьше или уменьшите его.</p>
+  <p style="margin-top: 24px;"><a class="btn btn--primary" href="{{ url_for('add') }}">К форме объявления</a></p>
+{% endblock %}

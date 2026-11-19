@@ -1,13 +1,13 @@
 {# Общий макрос карточки объявления (вёрстка lost_found/site/lost.html) #}
 {% macro item_card(item) %}
 <article class="item-card">
-  <div class="placeholder placeholder--card item-card__img{% if item.photo %} placeholder--photo{% endif %}">
+  <a class="placeholder placeholder--card item-card__img{% if item.photo %} placeholder--photo{% endif %}" href="{{ url_for('item_detail', item_id=item.id) }}" aria-label="{{ item.title }}">
     {% if item.photo %}
       <img src="{{ url_for('uploads', filename=item.photo) }}" alt="{{ item.title }}">
     {% else %}
       400 × 300
     {% endif %}
-  </div>
+  </a>
   <div class="item-card__head">
     <h3 class="item-card__title"><a href="{{ url_for('item_detail', item_id=item.id) }}">{{ item.title }}</a></h3>
     <span class="item-card__date">{{ item.date|ru_date }}</span>
@@ -19,4 +19,67 @@
   <p class="item-card__desc">{{ item.description }}</p>
   <a class="item-card__link" href="{{ url_for('item_detail', item_id=item.id) }}">Подробнее</a>
 </article>
+{% endmacro %}
+
+{# Карточка совпадения «потерял/нашёл».
+   m — данные совпадения из matching.py, show_actions — кнопки «Это моё»
+   и «Не подходит» (только для автора потерянного объявления и статуса new). #}
+{% macro match_card(m, show_actions=False, next_path='') %}
+<article class="listing-row match-row">
+  <div class="placeholder placeholder--thumb{% if m.other.photo %} placeholder--photo{% endif %}">
+    {% if m.other.photo %}
+      <img src="{{ url_for('uploads', filename=m.other.photo) }}" alt="{{ m.other.title }}">
+    {% else %}
+      400×300
+    {% endif %}
+  </div>
+  <div class="listing-row__body">
+    <h3 class="listing-row__title"><a href="{{ url_for('item_detail', item_id=m.other.id) }}">{{ m.other.title }}</a></h3>
+    <p class="listing-row__loc">{{ m.other.place_name }} · {{ m.other.date|ru_date }}</p>
+    <p class="listing-row__loc">Почему подходит: {{ m.reasons|join(', ') }}</p>
+    <p class="listing-row__loc">Оценка системы: {{ m.score }} из 100</p>
+    {% if m.status == 'confirmed' %}
+      <p class="listing-row__loc">Контакт второй стороны: {{ m.contact or 'контакт не указан' }}</p>
+    {% endif %}
+  </div>
+  <div class="listing-row__aside">
+    {% if m.status == 'confirmed' %}
+      <span class="badge badge--green">Подтверждено</span>
+    {% elif m.status == 'new' %}
+      <span class="badge badge--orange">Новое</span>
+    {% endif %}
+    {% if show_actions and m.status == 'new' %}
+      <form method="post" action="{{ url_for('match_confirm', match_id=m.match_id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ next_path }}">
+        <button class="btn btn--primary btn--sm" type="submit">Это моё</button>
+      </form>
+      <form method="post" action="{{ url_for('match_reject', match_id=m.match_id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ next_path }}">
+        <button class="btn btn--secondary btn--sm" type="submit">Не подходит</button>
+      </form>
+    {% endif %}
+  </div>
+</article>
+{% endmacro %}
+
+{# Блок пагинации (показывается, только если страниц больше одной).
+   pag — данные пагинации из маршрута, endpoint — имя маршрута списка. #}
+{% macro pagination(pag, endpoint) %}
+{% if pag.pages > 1 %}
+<nav class="chips pagination" aria-label="Страницы">
+  {% if pag.has_prev %}
+    <a class="chip" href="{{ url_for(endpoint, page=pag.page - 1, **pag.args) }}">Назад</a>
+  {% endif %}
+  {% for n in range(1, pag.pages + 1) %}
+    <a class="chip{% if n == pag.page %} chip--active{% endif %}"
+       href="{{ url_for(endpoint, page=n, **pag.args) }}"
+       {% if n == pag.page %}aria-current="page"{% endif %}>{{ n }}</a>
+  {% endfor %}
+  {% if pag.has_next %}
+    <a class="chip" href="{{ url_for(endpoint, page=pag.page + 1, **pag.args) }}">Вперёд</a>
+  {% endif %}
+</nav>
+{% endif %}
 {% endmacro %}

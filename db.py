@@ -1,12 +1,18 @@
+import os
 import sqlite3
 
-DB_NAME = "lostfound.db"
+# Путь к базе можно переопределить переменной окружения DATABASE_PATH
+# (используется в тестах и на хостинге), по умолчанию — lostfound.db.
+DB_NAME = os.environ.get("DATABASE_PATH", "lostfound.db")
 
 
 def get_db():
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
+    # Встроенный lower() в SQLite знает только латиницу, поэтому поиск
+    # без учёта регистра для кириллицы делаем через собственную функцию.
+    conn.create_function("PY_LOWER", 1, lambda s: s.lower() if s is not None else None)
     return conn
 
 

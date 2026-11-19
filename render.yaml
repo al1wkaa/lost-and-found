@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: lost-and-found
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: "3.12.3"
+      - key: DATABASE_PATH
+        value: /opt/render/project/src/lostfound.db
+      - key: UPLOAD_DIR
+        value: /opt/render/project/src/uploads

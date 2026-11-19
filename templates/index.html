@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import item_card %}
+{% from "_macros.html" import item_card, pagination as pagination_nav %}
 {% block body_class %}page--home{% endblock %}
 {% block title %}Lost &amp; Found — Потеряли? Найдём!{% endblock %}
 
@@ -63,13 +63,15 @@
           </a>
         {% endif %}
       </div>
+      <p class="page-sub">Найдено объявлений: {{ pag.total }}</p>
 
       {% if items %}
         <div class="grid--3">
           {% for item in items %}{{ item_card(item) }}{% endfor %}
         </div>
+        {{ pagination_nav(pag, 'home') }}
       {% else %}
-        <p class="page-sub">Пока нет объявлений. {% if current_user.is_authenticated %}Подайте первое!{% else %}Войдите, чтобы подать объявление.{% endif %}</p>
+        <p class="page-sub">Пока нет объявлений. <a class="check__link" href="{{ url_for('add') }}">Создать первое объявление</a></p>
       {% endif %}
     </div>
   </section>

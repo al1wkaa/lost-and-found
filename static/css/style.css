@@ -451,6 +451,20 @@ main { flex: 1; }
   margin-bottom: var(--sp-5);
 }
 
+/* Строка фильтров списка (категория, место, дата) */
+.filter-form { flex: 1 0 100%; }
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+}
+.filter-row .field { flex: 1 1 180px; min-width: 160px; }
+.filter-row .field .select,
+.filter-row .field .input { background: var(--white); }
+.filter-row__buttons { display: flex; gap: var(--sp-3); flex: 0 0 auto; }
+
 .item-card { display: flex; flex-direction: column; }
 .item-card__img { margin-bottom: var(--sp-4); }
 .item-card__head {

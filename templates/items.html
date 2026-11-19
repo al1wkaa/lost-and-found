@@ -1,35 +1,71 @@
 {% extends "base.html" %}
-{% from "_macros.html" import item_card %}
+{% from "_macros.html" import item_card, pagination as pagination_nav %}
 {% block body_class %}page--list{% endblock %}
 {% block title %}Lost &amp; Found — {{ 'Находки' if item_type == 'found' else 'Пропажи' }}{% endblock %}
 
 {% block content %}
   <div class="page-head">
     <h1 class="h1">{{ 'Находки' if item_type == 'found' else 'Пропажи' }}</h1>
-    <a class="btn btn--primary btn--sm" href="{{ url_for('add') }}">
+    <a class="btn btn--primary btn--sm" href="{{ url_for('add', type=item_type) }}">
       <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2v14M2 9h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       {{ 'Сообщить о находке' if item_type == 'found' else 'Сообщить о пропаже' }}
     </a>
   </div>
 
   <div class="toolbar">
-    <form class="search" role="search" method="get" action="{{ url_for('items_list', type=item_type) }}">
-      <input class="input" type="search" name="q" value="{{ q }}" placeholder="Поиск {{ 'найденных' if item_type == 'found' else 'пропавших' }} вещей..." aria-label="Поиск">
-      <svg class="search__icon" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <form class="filter-form" role="search" method="get" action="{{ url_for('items_list') }}">
+      <input type="hidden" name="type" value="{{ item_type }}">
+      <div class="search">
+        <input class="input" type="search" name="q" value="{{ filters.q }}" placeholder="Поиск {{ 'найденных' if item_type == 'found' else 'пропавших' }} вещей..." aria-label="Поиск">
+        <svg class="search__icon" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="filter-row">
+        <div class="field">
+          <label class="field__label field__label--dark" for="filter-category">Категория</label>
+          <select class="select" id="filter-category" name="category_id">
+            <option value="">Все категории</option>
+            {% for c in categories %}
+              <option value="{{ c.id }}"{% if filters.category_id == c.id %} selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label field__label--dark" for="filter-place">Место</label>
+          <select class="select" id="filter-place" name="place_id">
+            <option value="">Все места</option>
+            {% for p in places %}
+              <option value="{{ p.id }}"{% if filters.place_id == p.id %} selected{% endif %}>{{ p.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label field__label--dark" for="filter-date">Дата не раньше</label>
+          <input class="input" type="date" id="filter-date" name="date" value="{{ filters.date }}">
+        </div>
+        <div class="filter-row__buttons">
+          <button class="btn btn--primary" type="submit">Найти</button>
+          <a class="btn btn--secondary" href="{{ url_for('items_list', type=item_type) }}">Сбросить</a>
+        </div>
+      </div>
     </form>
     <div class="chips" role="group" aria-label="Категории">
-      <a class="chip{% if category_id is none %} chip--active{% endif %}" href="{{ url_for('items_list', type=item_type, q=q or none) }}">Все вещи</a>
+      <a class="chip{% if filters.category_id is none %} chip--active{% endif %}" href="{{ url_for('items_list', type=item_type, q=filters.q or none, place_id=filters.place_id or none, date=filters.date or none) }}">Все вещи</a>
       {% for c in categories %}
-        <a class="chip{% if category_id == c.id %} chip--active{% endif %}" href="{{ url_for('items_list', type=item_type, category_id=c.id, q=q or none) }}">{{ c.name }}</a>
+        <a class="chip{% if filters.category_id == c.id %} chip--active{% endif %}" href="{{ url_for('items_list', type=item_type, category_id=c.id, q=filters.q or none, place_id=filters.place_id or none, date=filters.date or none) }}">{{ c.name }}</a>
       {% endfor %}
     </div>
   </div>
+
+  <p class="page-sub">Найдено объявлений: {{ pag.total }}</p>
 
   {% if items %}
     <div class="grid--3">
       {% for item in items %}{{ item_card(item) }}{% endfor %}
     </div>
+    {{ pagination_nav(pag, 'items_list') }}
+  {% elif filters.has_filters %}
+    <p class="page-sub">По вашему запросу ничего не найдено. <a class="check__link" href="{{ url_for('items_list', type=item_type) }}">Сбросить фильтры</a></p>
   {% else %}
-    <p class="page-sub">{% if q or category_id is not none %}Ничего не найдено.{% else %}Пока нет объявлений.{% endif %}</p>
+    <p class="page-sub">Пока нет объявлений. <a class="check__link" href="{{ url_for('add', type=item_type) }}">Создать первое объявление</a></p>
   {% endif %}
 {% endblock %}
